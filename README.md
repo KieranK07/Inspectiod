@@ -1,80 +1,85 @@
+```text
+  ___                     _   _           _
+ |_ _|_ __  ___ _ __   __| | (_) ___   __| |
+  | || '_ \/ __| '_ \ / _` | | |/ _ \ / _` |
+  | || | | \__ \ |_) | (_| | | | (_) | (_| |
+ |___|_| |_|___/ .__/ \__,_| |_|\___/ \__,_|
+               |_|
+```
+
 # Inspectiod
 
-Inspectiod is a local web app for capturing and inspecting browser game sessions. It records browser console output, network HAR data, WebSocket frames, loaded JS bundles, DOM snapshots, and optional state dumps, then lets you inspect and chat over captured sessions.
+Inspectiod is a local-first web application for capturing and inspecting browser game sessions.  
+It collects console logs, HAR traffic, WebSocket frames, loaded bundles, DOM snapshots, and optional state dumps, then provides an inspector + chat workflow for analysis.
 
-## What you need
+## Project status
+
+- Active development
+- Local-only by default (`127.0.0.1`)
+- Clear setup, build, and lint workflows
+
+## Requirements
 
 - Node.js 20+
 - npm 10+
-- A desktop environment (Playwright launches Chromium in headed mode)
-- `ANTHROPIC_API_KEY` (only required for the Inspector chat feature)
+- Desktop environment (Playwright launches headed Chromium)
+- `ANTHROPIC_API_KEY` (optional; required only for Inspector chat)
 
 ## Quick start
 
-1. Install dependencies from the repository root:
-
+1. Install dependencies:
    ```bash
    npm install
    ```
-
 2. Install Playwright Chromium (first run only):
-
    ```bash
    npx playwright install chromium
    ```
-
-3. (Optional) set your Anthropic key for chat:
-
+3. Optional: enable chat:
    ```bash
    export ANTHROPIC_API_KEY="your_key_here"
    ```
-
-4. Start backend + frontend:
-
+4. Start the app:
    ```bash
    npm run dev
    ```
-
 5. Open `http://127.0.0.1:5173`.
 
-## How to use
+## Usage flow
 
-1. Go to **Live Capture**.
-2. Enter a target URL and optionally a state expression (for example `window.gameState`).
-3. Click **Start** and interact with the opened browser window.
-4. Click **Stop** when done.
-5. Go to **Sessions** and open the session in **Inspector + Chat**.
+1. Open **Live Capture**.
+2. Enter a target URL and optional state expression (for example: `window.gameState`).
+3. Click **Start** and interact with the opened browser.
+4. Click **Stop** when finished.
+5. Open the session from **Sessions** in **Inspector + Chat**.
 
-Captured sessions are stored in `/home/runner/work/Inspectiod/Inspectiod/sessions` by default. You can override this with `SESSIONS_DIR`.
+Captured sessions are stored in `./sessions` by default. Override with `SESSIONS_DIR` when needed.
 
 ## Scripts
 
-From repo root:
+From the repository root:
 
-- `npm run dev` – run backend and frontend together
-- `npm run dev:backend` – backend only (`127.0.0.1:5174`)
-- `npm run dev:frontend` – frontend only (`127.0.0.1:5173`)
-- `npm run build` – build backend and frontend
+- `npm run dev` — run backend and frontend together
+- `npm run dev:backend` — backend only (`127.0.0.1:5174`)
+- `npm run dev:frontend` — frontend only (`127.0.0.1:5173`)
+- `npm run build` — build backend and frontend
+- `npm run lint -w frontend` — lint frontend workspace
 
-Frontend-only:
+## Security notes
 
-- `npm run lint -w frontend`
+- API server is bound to `127.0.0.1` by default (local machine only).
+- CORS is permissive (`origin: true`), so do not expose backend publicly.
+- Session artifacts may include sensitive page/traffic data; treat captures as sensitive.
+- Session file access is path-confined to the selected session directory.
 
-## Security notes (quick check)
-
-- The API server binds to `127.0.0.1`, so it is only reachable from your local machine by default.
-- CORS is permissive (`origin: true`), so keep it local and do not expose the backend port publicly.
-- Session capture stores raw traffic and page content; treat session files as sensitive and do not share them unless scrubbed.
-- `url` input is validated as an absolute URL and session file reads are path-confined to the selected session directory.
-
-Recommended safe usage:
+Recommended practice:
 
 - Run on a personal machine.
-- Capture only sites/data you are authorized to inspect.
-- Remove old session folders when no longer needed.
+- Capture only data you are authorized to inspect.
+- Remove stale session folders periodically.
 
 ## Troubleshooting
 
-- **`api: unreachable` in UI**: ensure backend is running on port `5174`.
+- **`api: unreachable` in UI**: verify backend is running on `5174`.
 - **Playwright launch errors**: rerun `npx playwright install chromium`.
-- **Chat errors**: confirm `ANTHROPIC_API_KEY` is set in the backend environment.
+- **Chat errors**: confirm `ANTHROPIC_API_KEY` is set for backend runtime.
