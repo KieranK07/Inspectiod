@@ -1,0 +1,80 @@
+:root {
+  color-scheme: dark;
+  --bg: #111214;
+  --bg-alt: #18191c;
+  --border: #2a2b2f;
+  --text: #e4e4e7;
+  --text-dim: #9a9ba1;
+  --accent: #4f8cff;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+.markdown-body p {
+  margin: 0 0 8px;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body pre {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.markdown-body code {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
