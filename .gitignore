@@ -8,3 +8,6 @@ build/
 # captured session data is local-only, don't commit it
 sessions/*
 !sessions/.gitkeep
+
+# persistent browser profile holds real login cookies/sessions, never commit
+browser-profile/

@@ -5,8 +5,16 @@ export const SESSIONS_ROOT = process.env.SESSIONS_DIR
   ? path.resolve(process.env.SESSIONS_DIR)
   : path.resolve(process.cwd(), "..", "sessions");
 
+export const BROWSER_PROFILE_DIR = process.env.BROWSER_PROFILE_DIR
+  ? path.resolve(process.env.BROWSER_PROFILE_DIR)
+  : path.resolve(process.cwd(), "..", "browser-profile");
+
 export function ensureSessionsRoot(): void {
   fs.mkdirSync(SESSIONS_ROOT, { recursive: true });
+}
+
+export function ensureBrowserProfileDir(): void {
+  fs.mkdirSync(BROWSER_PROFILE_DIR, { recursive: true });
 }
 
 export function newSessionId(): string {

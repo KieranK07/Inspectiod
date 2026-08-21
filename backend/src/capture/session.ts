@@ -3,8 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { EventEmitter } from "node:events";
 import { chromium } from "playwright";
-import type { Browser, Page, Response, WebSocket } from "playwright";
-import { ensureSessionsRoot, newSessionId, sessionDir } from "./paths.js";
+import type { Page, Response, WebSocket } from "playwright";
+import { ensureBrowserProfileDir, ensureSessionsRoot, newSessionId, sessionDir, BROWSER_PROFILE_DIR } from "./paths.js";
 import {
   buildFileIndex,
   writeManifest,
@@ -188,8 +188,14 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
   const consoleStream = fs.createWriteStream(path.join(dir, "console.log"), { flags: "a" });
   const wsStream = fs.createWriteStream(path.join(dir, "ws-frames.log"), { flags: "a" });
 
-  const browser: Browser = await chromium.launch({ headless: false });
-  const context = await browser.newContext({
+  ensureBrowserProfileDir();
+  // Persistent profile (not a throwaway context) so logins survive across
+  // capture sessions — Google's sign-in flow refuses to complete inside a
+  // freshly-automated browser, so the login has to happen once and stick.
+  const context = await chromium.launchPersistentContext(BROWSER_PROFILE_DIR, {
+    headless: false,
+    channel: "chrome",
+    args: ["--disable-blink-features=AutomationControlled"],
     recordHar: { path: path.join(dir, "network.har"), content: "embed" },
   });
 
@@ -245,11 +251,6 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
     } catch {
       // context/browser may already be gone if the user closed the window
     }
-    try {
-      await browser.close();
-    } catch {
-      // already closed
-    }
 
     await closeStream(consoleStream);
     await closeStream(wsStream);
@@ -279,7 +280,7 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
     return finalManifest;
   };
 
-  browser.on("disconnected", () => {
+  context.on("close", () => {
     void finalize();
   });
 
