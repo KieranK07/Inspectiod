@@ -1,13 +1,3 @@
-```
-░▒▓█▓▒░▒▓███████▓▒░ ░▒▓███████▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓██████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░  
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░     ░▒▓█▓▒░        ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░░▒▓██████▓▒░░▒▓█▓▒░        ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░        ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░      ░▒▓████████▓▒░▒▓██████▓▒░  ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░                   
-```
-
 # Inspectiod
 
 Inspectiod is a local-first web application for capturing and inspecting browser game sessions.  
@@ -17,13 +7,13 @@ It collects console logs, HAR traffic, WebSocket frames, loaded bundles, DOM sna
 
 - Active development
 - Local-only by default (`127.0.0.1`)
-- Clear setup, build, and lint workflows
 
 ## Requirements
 
 - Node.js 20+
 - npm 10+
-- Desktop environment (Playwright launches headed Chromium)
+- Google Chrome installed (captures run in a headed Chrome window via Playwright's `chrome` channel)
+- Desktop environment
 - `ANTHROPIC_API_KEY` (optional; required only for Inspector chat)
 
 ## Quick start
@@ -32,19 +22,15 @@ It collects console logs, HAR traffic, WebSocket frames, loaded bundles, DOM sna
    ```bash
    npm install
    ```
-2. Install Playwright Chromium (first run only):
-   ```bash
-   npx playwright install chromium
-   ```
-3. Optional: enable chat:
+2. Optional: enable chat:
    ```bash
    export ANTHROPIC_API_KEY="your_key_here"
    ```
-4. Start the app:
+3. Start the app:
    ```bash
    npm run dev
    ```
-5. Open `http://127.0.0.1:5173`.
+4. Open `http://127.0.0.1:5173`.
 
 ## Usage flow
 
@@ -82,5 +68,5 @@ Recommended practice:
 ## Troubleshooting
 
 - **`api: unreachable` in UI**: verify backend is running on `5174`.
-- **Playwright launch errors**: rerun `npx playwright install chromium`.
+- **Playwright launch errors**: install Google Chrome, or run `npx playwright install chrome`.
 - **Chat errors**: confirm `ANTHROPIC_API_KEY` is set for backend runtime.
