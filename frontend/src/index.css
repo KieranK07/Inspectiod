@@ -1,3 +1,26 @@
+@import "tailwindcss";
+
+/* shadcn/ui components (src/components/ui) read their colors from this
+   theme block instead of our --bg/--border/etc. tokens above — mapped to
+   the same dark palette so both systems render as one coherent look. */
+@theme {
+  --color-background: #111214;
+  --color-foreground: #e4e4e7;
+  --color-primary: #4f8cff;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #24252a;
+  --color-secondary-foreground: #e4e4e7;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-accent: #24252a;
+  --color-accent-foreground: #e4e4e7;
+  --color-muted: #18191c;
+  --color-muted-foreground: #9a9ba1;
+  --color-input: #2a2b2f;
+  --color-border: #2a2b2f;
+  --color-ring: #4f8cff;
+}
+
 :root {
   color-scheme: dark;
   --bg: #111214;

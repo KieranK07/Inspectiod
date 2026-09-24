@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useChatStream, type ChatMessage } from "../hooks/useChatStream";
 import { paneHeaderStyle, paneStyle } from "../styles";
+import { CHAT_MODELS, ClaudeStyleChatInput } from "@/components/ui/claude-style-ai-input";
 
 function summarizeToolInput(input: unknown): string {
   if (input && typeof input === "object") {
@@ -55,6 +56,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 export function ChatPanel({ sessionId }: { sessionId: string }) {
   const { state, connected } = useChatStream(sessionId);
   const [input, setInput] = useState("");
+  const [model, setModel] = useState(CHAT_MODELS[0].id);
   const [sendError, setSendError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -62,16 +64,14 @@ export function ChatPanel({ sessionId }: { sessionId: string }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [state.messages]);
 
-  async function handleSend() {
-    const text = input.trim();
-    if (!text || state.busy) return;
-    setInput("");
+  async function handleSend(text: string) {
+    if (!text.trim() || state.busy) return;
     setSendError(null);
     try {
       const resp = await fetch(`/api/sessions/${sessionId}/chat/message`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, model }),
       });
       if (!resp.ok) {
         const body = await resp.json().catch(() => ({}) as { error?: string });
@@ -85,7 +85,10 @@ export function ChatPanel({ sessionId }: { sessionId: string }) {
   return (
     <div style={paneStyle}>
       <div style={paneHeaderStyle}>Chat{connected ? "" : " (reconnecting…)"}</div>
-      <div ref={scrollRef} style={{ flex: 1, overflow: "auto", padding: 10, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div
+        ref={scrollRef}
+        style={{ flex: 1, minHeight: 0, overflow: "auto", padding: 10, display: "flex", flexDirection: "column", gap: 10 }}
+      >
         {state.messages.length === 0 && (
           <div style={{ color: "var(--text-dim)", fontSize: 13 }}>
             Ask about this session — Claude can read, grep, and search every captured file.
@@ -98,32 +101,16 @@ export function ChatPanel({ sessionId }: { sessionId: string }) {
       {(state.error || sendError) && (
         <div style={{ color: "#ff6b6b", fontSize: 12, padding: "0 10px 6px" }}>{state.error ?? sendError}</div>
       )}
-      <div style={{ display: "flex", gap: 8, padding: 10, borderTop: "1px solid var(--border)" }}>
-        <textarea
+      <div style={{ padding: 10, borderTop: "1px solid var(--border)" }}>
+        <ClaudeStyleChatInput
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              void handleSend();
-            }
-          }}
+          onChange={setInput}
+          onSend={(text) => void handleSend(text)}
+          disabled={state.busy}
           placeholder="Ask about this session…"
-          rows={2}
-          style={{
-            flex: 1,
-            resize: "none",
-            background: "var(--bg-alt)",
-            color: "var(--text)",
-            border: "1px solid var(--border)",
-            borderRadius: 6,
-            padding: "6px 10px",
-            fontFamily: "inherit",
-          }}
+          model={model}
+          onModelChange={setModel}
         />
-        <button onClick={() => void handleSend()} disabled={state.busy || !input.trim()}>
-          {state.busy ? "…" : "Send"}
-        </button>
       </div>
     </div>
   );

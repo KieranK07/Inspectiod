@@ -16,6 +16,7 @@ export const paneStyle: CSSProperties = {
   borderRadius: 6,
   overflow: "hidden",
   minWidth: 0,
+  minHeight: 0,
 };
 
 export function formatBytes(n: number): string {

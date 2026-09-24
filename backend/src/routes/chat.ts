@@ -4,6 +4,7 @@ import { chatEvents, getChatSnapshot, isBusy, sendMessage } from "../chat/manage
 
 interface SendBody {
   text?: string;
+  model?: string;
 }
 
 export async function chatRoutes(app: FastifyInstance): Promise<void> {
@@ -18,7 +19,7 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
       return reply.code(409).send({ error: "Claude is still responding to the previous message" });
     }
 
-    void sendMessage(req.params.id, dir, text);
+    void sendMessage(req.params.id, dir, text, req.body?.model);
     return { ok: true };
   });
 

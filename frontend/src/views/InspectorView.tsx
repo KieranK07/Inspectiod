@@ -49,19 +49,29 @@ export function InspectorView({ sessionId }: { sessionId: string | null }) {
   const tree = buildTree(manifest.files ?? []);
 
   return (
-    <div style={{ display: "flex", gap: 12, height: "100%" }}>
-      <div style={{ ...paneStyle, width: 280, flex: "0 0 280px" }}>
+    <div style={{ display: "flex", gap: 12, height: "100%", minHeight: 0 }}>
+      <div style={{ ...paneStyle, width: 240, flex: "0 0 240px" }}>
         <div style={paneHeaderStyle}>
           <div>{sessionId}</div>
           <div style={{ marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{manifest.targetUrl}</div>
         </div>
-        <div style={{ flex: 1, overflow: "auto", padding: 8 }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: 8 }}>
           <FileTree nodes={tree} selected={selectedPath} onSelectFile={setSelectedPath} />
         </div>
       </div>
-      <div style={paneStyle}>
+      <div style={{ ...paneStyle, flex: 1, minWidth: 280 }}>
         <div style={paneHeaderStyle}>{selectedPath ?? "Select a file to preview"}</div>
-        <div style={{ flex: 1, overflow: "auto", padding: 8, fontFamily: "var(--mono)", fontSize: 12, whiteSpace: "pre-wrap" }}>
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflow: "auto",
+            padding: 8,
+            fontFamily: "var(--mono)",
+            fontSize: 12,
+            whiteSpace: "pre-wrap",
+          }}
+        >
           {loadingPreview && <span style={{ color: "var(--text-dim)" }}>Loading…</span>}
           {!loadingPreview && preview && (
             <>
@@ -78,7 +88,7 @@ export function InspectorView({ sessionId }: { sessionId: string | null }) {
           )}
         </div>
       </div>
-      <div style={{ width: 420, flex: "0 0 420px" }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 2, minWidth: 480, minHeight: 0 }}>
         <ChatPanel sessionId={sessionId} />
       </div>
     </div>
