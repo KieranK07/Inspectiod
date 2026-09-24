@@ -65,7 +65,11 @@ export function isBusy(sessionId: string): boolean {
   return getState(sessionId).busy;
 }
 
-export async function sendMessage(sessionId: string, sessionDir: string, text: string): Promise<void> {
+export function clearChatState(sessionId: string): void {
+  states.delete(sessionId);
+}
+
+export async function sendMessage(sessionId: string, sessionDir: string, text: string, model?: string): Promise<void> {
   const state = getState(sessionId);
   if (state.busy) return;
   state.busy = true;
@@ -101,6 +105,7 @@ export async function sendMessage(sessionId: string, sessionDir: string, text: s
       options: {
         cwd: sessionDir,
         resume: state.claudeSessionId ?? undefined,
+        model: model || undefined,
         tools: ["Read", "Grep", "Glob"],
         settingSources: [],
         systemPrompt: SYSTEM_PROMPT,

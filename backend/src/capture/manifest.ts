@@ -19,6 +19,7 @@ export type SessionStatus = "running" | "stopped";
 export interface SessionManifest {
   id: string;
   targetUrl: string;
+  stateExpression: string;
   startTime: string;
   endTime: string | null;
   status: SessionStatus;
@@ -30,6 +31,7 @@ export interface SessionManifest {
 export interface SessionIndexEntry {
   id: string;
   targetUrl: string;
+  stateExpression: string;
   startTime: string;
   endTime: string | null;
   status: SessionStatus;
@@ -54,6 +56,21 @@ export function buildFileIndex(dir: string): FileIndexEntry[] {
   };
   walk(dir);
   return results.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+export function removeFromSessionsIndex(id: string): void {
+  const indexPath = path.join(SESSIONS_ROOT, "index.json");
+  if (!fs.existsSync(indexPath)) return;
+  let sessions: SessionIndexEntry[] = [];
+  try {
+    sessions = (JSON.parse(fs.readFileSync(indexPath, "utf-8")).sessions as SessionIndexEntry[]) ?? [];
+  } catch {
+    return;
+  }
+  fs.writeFileSync(
+    indexPath,
+    JSON.stringify({ sessions: sessions.filter((s) => s.id !== id) }, null, 2),
+  );
 }
 
 export function upsertSessionsIndex(entry: SessionIndexEntry): void {

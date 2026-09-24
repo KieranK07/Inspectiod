@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LiveCaptureView } from "./views/LiveCaptureView";
+import { LiveCaptureView, type CapturePrefill } from "./views/LiveCaptureView";
 import { SessionListView } from "./views/SessionListView";
 import { InspectorView } from "./views/InspectorView";
 
@@ -9,6 +9,7 @@ function App() {
   const [view, setView] = useState<View>("sessions");
   const [apiOk, setApiOk] = useState<boolean | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [capturePrefill, setCapturePrefill] = useState<CapturePrefill | null>(null);
 
   useEffect(() => {
     fetch("/api/health")
@@ -58,16 +59,23 @@ function App() {
           api: {apiOk === null ? "…" : apiOk ? "ok" : "unreachable"}
         </span>
       </header>
-      <main style={{ flex: 1, padding: 16, overflow: "auto" }}>
+      <main style={{ flex: 1, minHeight: 0, padding: 16, overflow: "auto" }}>
         {view === "sessions" && (
           <SessionListView
             onSelect={(id) => {
               setSelectedSessionId(id);
               setView("inspector");
             }}
+            onDeleted={(id) => {
+              setSelectedSessionId((current) => (current === id ? null : current));
+            }}
+            onReopenInLiveCapture={(url, stateExpression) => {
+              setCapturePrefill((prev) => ({ url, stateExpression, key: (prev?.key ?? 0) + 1 }));
+              setView("capture");
+            }}
           />
         )}
-        {view === "capture" && <LiveCaptureView />}
+        {view === "capture" && <LiveCaptureView prefill={capturePrefill} />}
         {view === "inspector" && <InspectorView sessionId={selectedSessionId} />}
       </main>
     </div>

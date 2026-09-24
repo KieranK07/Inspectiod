@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import type { FastifyInstance } from "fastify";
 import { SESSIONS_ROOT, resolveSessionDir } from "../capture/paths.js";
-import { buildFileIndex, type SessionIndexEntry } from "../capture/manifest.js";
+import { buildFileIndex, removeFromSessionsIndex, type SessionIndexEntry } from "../capture/manifest.js";
+import { getSnapshot } from "../capture/manager.js";
+import { clearChatState } from "../chat/manager.js";
 
 const MAX_PREVIEW_BYTES = 2 * 1024 * 1024;
 
@@ -63,4 +65,19 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
       return { path: rel, bytes: stat.size, truncated, content: buffer.toString("utf-8") };
     },
   );
+
+  app.delete<{ Params: { id: string } }>("/api/sessions/:id", async (req, reply) => {
+    const dir = resolveSessionDir(req.params.id);
+    if (!dir) return reply.code(404).send({ error: "session not found" });
+
+    if (getSnapshot()?.sessionId === req.params.id) {
+      return reply.code(400).send({ error: "Stop the capture before deleting this session." });
+    }
+
+    fs.rmSync(dir, { recursive: true, force: true });
+    removeFromSessionsIndex(req.params.id);
+    clearChatState(req.params.id);
+
+    return { ok: true };
+  });
 }

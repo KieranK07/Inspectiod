@@ -12,7 +12,10 @@ function LogPane({ title, lines }: { title: string; lines: string[] }) {
   return (
     <div style={paneStyle}>
       <div style={paneHeaderStyle}>{title}</div>
-      <div ref={ref} style={{ flex: 1, overflow: "auto", padding: 8, fontFamily: "var(--mono)", fontSize: 12, whiteSpace: "pre-wrap" }}>
+      <div
+        ref={ref}
+        style={{ flex: 1, minHeight: 0, overflow: "auto", padding: 8, fontFamily: "var(--mono)", fontSize: 12, whiteSpace: "pre-wrap" }}
+      >
         {lines.length === 0 && <div style={{ color: "var(--text-dim)" }}>waiting for activity…</div>}
         {lines.map((line, i) => (
           <div key={i} style={{ marginBottom: 4 }}>
@@ -30,7 +33,7 @@ function FileListPane({ title, files }: { title: string; files: string[] }) {
       <div style={paneHeaderStyle}>
         {title} ({files.length})
       </div>
-      <div style={{ flex: 1, overflow: "auto", padding: 8, fontFamily: "var(--mono)", fontSize: 12 }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: 8, fontFamily: "var(--mono)", fontSize: 12 }}>
         {files.length === 0 && <div style={{ color: "var(--text-dim)" }}>none yet</div>}
         {files.map((f) => (
           <div key={f}>{f}</div>
@@ -40,7 +43,13 @@ function FileListPane({ title, files }: { title: string; files: string[] }) {
   );
 }
 
-export function LiveCaptureView() {
+export interface CapturePrefill {
+  url: string;
+  stateExpression: string;
+  key: number;
+}
+
+export function LiveCaptureView({ prefill }: { prefill?: CapturePrefill | null }) {
   const { state, connected } = useCaptureStream();
   const [url, setUrl] = useState("");
   const [stateExpression, setStateExpression] = useState("");
@@ -48,15 +57,16 @@ export function LiveCaptureView() {
   const [busy, setBusy] = useState(false);
   const [snapshotMessage, setSnapshotMessage] = useState<string | null>(null);
   const [snapshotBusy, setSnapshotBusy] = useState(false);
+  const handledPrefillKey = useRef<number | null>(null);
 
-  async function handleStart() {
+  async function startCapture(targetUrl: string, expr: string) {
     setError(null);
     setBusy(true);
     try {
       const resp = await fetch("/api/capture/start", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url, stateExpression }),
+        body: JSON.stringify({ url: targetUrl, stateExpression: expr }),
       });
       if (!resp.ok) {
         const body = await resp.json().catch(() => ({}) as { error?: string });
@@ -67,6 +77,18 @@ export function LiveCaptureView() {
     } finally {
       setBusy(false);
     }
+  }
+
+  useEffect(() => {
+    if (!prefill || handledPrefillKey.current === prefill.key) return;
+    handledPrefillKey.current = prefill.key;
+    setUrl(prefill.url);
+    setStateExpression(prefill.stateExpression);
+    void startCapture(prefill.url, prefill.stateExpression);
+  }, [prefill?.key]);
+
+  async function handleStart() {
+    await startCapture(url, stateExpression);
   }
 
   async function handleStop() {

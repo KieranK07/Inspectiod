@@ -10,6 +10,7 @@ export type SessionStatus = "running" | "stopped";
 export interface SessionIndexEntry {
   id: string;
   targetUrl: string;
+  stateExpression?: string;
   startTime: string;
   endTime: string | null;
   status: SessionStatus;

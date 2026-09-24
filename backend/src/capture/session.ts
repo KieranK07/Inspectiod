@@ -195,6 +195,10 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
   const context = await chromium.launchPersistentContext(BROWSER_PROFILE_DIR, {
     headless: false,
     channel: "chrome",
+    // null viewport lets the page size itself off the actual OS window instead
+    // of Playwright's fixed 1280x720 default, so fullscreen/resize/reload behave
+    // like a real browser window instead of staying pinned to the old size.
+    viewport: null,
     args: ["--disable-blink-features=AutomationControlled"],
     recordHar: { path: path.join(dir, "network.har"), content: "embed" },
   });
@@ -227,6 +231,7 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
   writeManifest(dir, {
     id,
     targetUrl,
+    stateExpression,
     startTime,
     endTime: null,
     status: "running",
@@ -234,7 +239,7 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
     files: [],
     counts: ctx.counts,
   });
-  upsertSessionsIndex({ id, targetUrl, startTime, endTime: null, status: "running", counts: ctx.counts });
+  upsertSessionsIndex({ id, targetUrl, stateExpression, startTime, endTime: null, status: "running", counts: ctx.counts });
 
   const page = await context.newPage();
   await page.goto(targetUrl, { waitUntil: "load" });
@@ -260,6 +265,7 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
     finalManifest = {
       id,
       targetUrl,
+      stateExpression,
       startTime,
       endTime,
       status: "stopped",
@@ -271,6 +277,7 @@ export async function startCapture(targetUrl: string, stateExpression = ""): Pro
     upsertSessionsIndex({
       id,
       targetUrl,
+      stateExpression,
       startTime,
       endTime,
       status: "stopped",
