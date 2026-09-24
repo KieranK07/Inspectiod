@@ -1,5 +1,7 @@
 # Inspectiod
 
+![Inspector view with a demo session](docs/img/inspector.png)
+
 Inspectiod is a local-first web application for capturing and inspecting browser game sessions.  
 It collects console logs, HAR traffic, WebSocket frames, loaded bundles, DOM snapshots, and optional state dumps, then provides an inspector + chat workflow for analysis.
 
